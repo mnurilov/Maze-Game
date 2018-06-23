@@ -8,7 +8,7 @@ using System.Threading;
 namespace Maze_Game
 {
     //A class used to make the buffer and game map global for all other classes to use
-    static class Buffer 
+    static class Buffer
     {
         //Length and width of the game map
         public static int length = 20;
@@ -16,10 +16,10 @@ namespace Maze_Game
 
         //Storages of the game map the char array which holds the logic game map and the string which is for visuals
         public static string buffer = "";
-        public static char [,] gameMap = new char [length, width];
+        public static char[,] gameMap = new char[length, width];
 
         public static void GameMapToBuffer()
-        { 
+        {
             //Reset buffer string to empty
             buffer = "";
 
@@ -35,10 +35,10 @@ namespace Maze_Game
         }
 
         //Draws the game map onto the console window
-        public static void DrawGameMap() 
+        public static void DrawGameMap()
         {
             Console.SetCursorPosition(0, 0);
-            Console.Write(buffer);    
+            Console.Write(buffer);
         }
     }
 
@@ -61,36 +61,36 @@ namespace Maze_Game
         public int previousy = startingy;
 
         //directional movements
-        public void MoveUp() 
+        public void MoveUp()
         {
             previousy = y;
             previousx = x;
             y--;
         }
-        public void MoveDown() 
+        public void MoveDown()
         {
             previousy = y;
             previousx = x;
             y++;
         }
-        public void MoveLeft() 
+        public void MoveLeft()
         {
             previousx = x;
             previousy = y;
-            x--;    
+            x--;
         }
-        public void MoveRight() 
-        { 
+        public void MoveRight()
+        {
             previousx = x;
             previousy = y;
-            x++;    
+            x++;
         }
 
         //chooses the direction that the player goes
         public void Direction(ConsoleKey direction)
         {
-            switch(direction)
-            { 
+            switch (direction)
+            {
                 case ConsoleKey.UpArrow:
                     MoveUp();
                     break;
@@ -109,21 +109,21 @@ namespace Maze_Game
         }
 
         //Draws the player on the game map at its current position
-        public void DrawToGameMap() 
-        {    
+        public void DrawToGameMap()
+        {
             //y and x are swapped so that it plots correctly on the game map just pretend its like normal coords
             Buffer.gameMap[y, x] = display;
         }
 
         //Deletes the player on the game map at its previous position
-        public void Delete() 
+        public void Delete()
         {
             //y and x are swapped so that it plots correctly on the game map just pretend its like normal coords
             Buffer.gameMap[previousy, previousx] = ' ';
         }
 
         //Collision detection for the player
-        public void PlayerCollision() 
+        public void PlayerCollision()
         {
             if (Buffer.gameMap[y, x] == '#')
             {
@@ -132,7 +132,7 @@ namespace Maze_Game
             }
             else if (Buffer.gameMap[y, x] == 'U')
             {
-                Environment.Exit(0);    
+                Environment.Exit(0);
             }
         }
     }
@@ -142,7 +142,7 @@ namespace Maze_Game
     {
         //Variables that hold the wall's display 
         public static char display = '#';
-       
+
         //A function that draws the walls onto the game map
         public static void DrawToGameMap()
         {
@@ -160,53 +160,74 @@ namespace Maze_Game
                     }
                 }
             }
-            for (int i = 16; i < 19; i++) 
+            for (int i = 16; i < 19; i++)
             {
-                Buffer.gameMap[i, 5] = '#';    
+                Buffer.gameMap[i, 5] = '#';
             }
 
             for (int i = 0; i < 37; i++)
-            { 
-                Buffer.gameMap[14, i] = '#'; 
+            {
+                Buffer.gameMap[14, i] = '#';
             }
         }
     }
 
-    //Class for the up down enemy
-    class UpDownEnemy 
-    { 
-        //Display character for the up down enemy
-        public char display = 'U';
+    class Enemy 
+    {
+        //Display character for the enemy
+        public char display;
 
-        //Current coordinates for the up down enemy
+        //Current coordinates for the enemy
         public int x;
         public int y;
 
-        //Previous coordinates for the up down enemy
+        //Previous coordinates for the enemy
         public int previousx;
         public int previousy;
 
+        public void Move()
+        {
+        }
+
+        public void EnemyCollision()
+        {
+        }
+
+        public void DrawToGameMap()
+        {
+            Buffer.gameMap[y, x] = display;
+        }
+
+        public void Delete()
+        {
+            Buffer.gameMap[previousy, previousx] = ' ';
+        }
+    }
+
+    //Class for the up down enemy
+    class UpDownEnemy : Enemy
+    {
         //Boolean to check if the up down enemy is going up or down
         public bool goingUp = true;
 
         //Method to make the up down enemy go up or down
-        public void Move() 
+        public new void Move()
         {
             if (goingUp == true)
-            { 
+            {
                 previousx = x;
                 previousy = y;
                 y--;
             }
-            else 
+            else
             {
                 previousx = x;
                 previousy = y;
-                y++;    
+                y++;
             }
         }
 
-        public void UpDownEnemyCollision() 
+        public new void EnemyCollision()
         {
             if (Buffer.gameMap[y, x] == '#')
             {
@@ -215,23 +236,14 @@ namespace Maze_Game
                 goingUp = !goingUp;
             }
             else if (Buffer.gameMap[y, x] == '$')
-            { 
+            {
                 Environment.Exit(0);
             }
         }
 
-        public void DrawToGameMap() 
+        public UpDownEnemy(int startingx1, int startingy1, bool upOrDown)
         {
-            Buffer.gameMap[y, x] = display;    
-        }
-
-        public void Delete() 
-        {
-            Buffer.gameMap[previousy, previousx] = ' ';    
-        }
-
-        public UpDownEnemy(int startingx1, int startingy1, bool upOrDown) 
-        {
+            display = 'U';
             x = startingx1;
             y = startingy1;
             previousx = startingx1;
@@ -245,24 +257,40 @@ namespace Maze_Game
     {
         static object Baton = new object();
 
-        static void SetUpConsoleWindow() 
+        static void SetUpConsoleWindow()
         {
             //Sets up the basics of the console window
             Console.Title = "Maze Game";
             Console.CursorVisible = false;
         }
 
-        static void Enemies() 
-        {           
-            UpDownEnemy upDownEnemy1 = new UpDownEnemy(5, 5, true);
+        static void EnemiesMovement()
+        {
+            List<UpDownEnemy> Enemies = new List<UpDownEnemy>();
 
-            while (true) 
+           
+            Enemies.Add(new UpDownEnemy(7, 15, true));
+            Enemies.Add(new UpDownEnemy(17, 2, true));
+            Enemies.Add(new UpDownEnemy(3, 9, true));
+            Enemies.Add(new UpDownEnemy(8, 5, true));
+            Enemies.Add(new UpDownEnemy(14, 7, true));
+
+
+
+            //UpDownEnemy upDownEnemy1 = new UpDownEnemy(5, 5, true);
+
+
+            while (true)
             {
-                upDownEnemy1.Move();
-                upDownEnemy1.UpDownEnemyCollision();
-                upDownEnemy1.Delete();
-                upDownEnemy1.DrawToGameMap();
-                lock (Baton) 
+                for (int i = 0; i < Enemies.Count; i++) 
+                {
+                    Enemies[i].Move();
+                    Enemies[i].EnemyCollision();
+
+                    Enemies[i].Delete();
+                    Enemies[i].DrawToGameMap();
+                }
+                lock (Baton)
                 {
                     Buffer.GameMapToBuffer();
                     Buffer.DrawGameMap();
@@ -277,22 +305,21 @@ namespace Maze_Game
 
             ConsoleKey input;
             Player Player = new Player();
-            UpDownEnemy upDownEnemy1 = new UpDownEnemy(5, 5, true);
+
             Wall.DrawToGameMap();
             Player.DrawToGameMap();
-            upDownEnemy1.DrawToGameMap();
             Buffer.GameMapToBuffer();
             Buffer.DrawGameMap();
 
-            Thread EnemyThread = new Thread(Enemies);
+            Thread EnemyThread = new Thread(EnemiesMovement);
             EnemyThread.Start();
-            
-           
+
+
 
             //Game Loop
             while (true)
             {
-                while (!Console.KeyAvailable) 
+                while (!Console.KeyAvailable)
                 {
                 }
                 input = Console.ReadKey().Key;
