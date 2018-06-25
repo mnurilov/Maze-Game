@@ -172,7 +172,7 @@ namespace Maze_Game
         }
     }
 
-    class Enemy 
+    class Enemy
     {
         //Display character for the enemy
         public char display;
@@ -184,14 +184,6 @@ namespace Maze_Game
         //Previous coordinates for the enemy
         public int previousx;
         public int previousy;
-
-        public void Move()
-        {
-        }
-
-        public void EnemyCollision()
-        {
-        }
 
         public void DrawToGameMap()
         {
@@ -211,7 +203,7 @@ namespace Maze_Game
         public bool goingUp = true;
 
         //Method to make the up down enemy go up or down
-        public new void Move()
+        public void Move()
         {
             if (goingUp == true)
             {
@@ -227,7 +219,7 @@ namespace Maze_Game
             }
         }
 
-        public new void EnemyCollision()
+        public void EnemyCollision()
         {
             if (Buffer.gameMap[y, x] == '#')
             {
@@ -252,6 +244,171 @@ namespace Maze_Game
         }
     }
 
+    //Class for the left right enemy
+    class LeftRightEnemy : Enemy
+    {
+        //Boolean to check if the left right enemy is going left or right
+        public bool goingLeft = true;
+
+        //Method to make the left right enemy go left or right
+        public void Move()
+        {
+            if (goingLeft == true)
+            {
+                previousx = x;
+                previousy = y;
+                x--;
+            }
+            else
+            {
+                previousx = x;
+                previousy = y;
+                x++;
+            }
+        }
+
+        public void EnemyCollision()
+        {
+            if (Buffer.gameMap[y, x] == '#')
+            {
+                x = previousx;
+                y = previousy;
+                goingLeft = !goingLeft;
+            }
+            else if (Buffer.gameMap[y, x] == '$')
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        public LeftRightEnemy(int startingx1, int startingy1, bool leftOrRight)
+        {
+            display = 'L';
+            x = startingx1;
+            y = startingy1;
+            previousx = startingx1;
+            previousy = startingy1;
+            goingLeft = leftOrRight;
+        }
+    }
+
+
+    //Class for the random enemy
+    class RandomEnemy : Enemy
+    {
+        static Random randNum = new Random();
+        
+        //Method to make the random enemy move
+        public void Move()
+        {
+            switch (randNum.Next(1, 5))
+            { 
+                case 1:
+                    previousx = x;
+                    previousy = y;
+                    x--;
+                    break;
+                case 2:
+                    previousx = x;
+                    previousy = y;
+                    x++;
+                    break;
+                case 3:
+                    previousx = x;
+                    previousy = y;
+                    y--;
+                    break;
+                case 4:
+                    previousx = x;
+                    previousy = y;
+                    y++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void EnemyCollision()
+        {
+            if (Buffer.gameMap[y, x] == '#')
+            {
+                x = previousx;
+                y = previousy;
+                
+            }
+            else if (Buffer.gameMap[y, x] == '$')
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        public RandomEnemy(int startingx1, int startingy1)
+        {
+            display = 'R';
+            x = startingx1;
+            y = startingy1;
+            previousx = startingx1;
+            previousy = startingy1;
+        }
+    }
+
+    //Class for the random enemy
+    class CannonEnemy : Enemy
+    {
+        //Method to make the random enemy move
+        public void Move()
+        {
+            switch (1)
+            {
+                case 1:
+                    previousx = x;
+                    previousy = y;
+                    x--;
+                    break;
+                case 2:
+                    previousx = x;
+                    previousy = y;
+                    x++;
+                    break;
+                case 3:
+                    previousx = x;
+                    previousy = y;
+                    y--;
+                    break;
+                case 4:
+                    previousx = x;
+                    previousy = y;
+                    y++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void EnemyCollision()
+        {
+            if (Buffer.gameMap[y, x] == '#')
+            {
+                x = previousx;
+                y = previousy;
+
+            }
+            else if (Buffer.gameMap[y, x] == '$')
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        public CannonEnemy(int startingx1, int startingy1)
+        {
+            display = 'C';
+            x = startingx1;
+            y = startingy1;
+            previousx = startingx1;
+            previousy = startingy1;
+        }
+    }
+
     //Main class
     class Program
     {
@@ -262,42 +419,58 @@ namespace Maze_Game
             //Sets up the basics of the console window
             Console.Title = "Maze Game";
             Console.CursorVisible = false;
+            Console.SetWindowSize(50, 22);
         }
 
         static void EnemiesMovement()
         {
-            List<UpDownEnemy> Enemies = new List<UpDownEnemy>();
+            List<UpDownEnemy> UpDownEnemies = new List<UpDownEnemy>();
+            List<LeftRightEnemy> LeftRightEnemies = new List<LeftRightEnemy>();
+            List<RandomEnemy> RandomEnemies = new List<RandomEnemy>();
 
-           
-            Enemies.Add(new UpDownEnemy(7, 15, true));
-            Enemies.Add(new UpDownEnemy(17, 2, true));
-            Enemies.Add(new UpDownEnemy(3, 9, true));
-            Enemies.Add(new UpDownEnemy(8, 5, true));
-            Enemies.Add(new UpDownEnemy(14, 7, true));
-
-
-
-            //UpDownEnemy upDownEnemy1 = new UpDownEnemy(5, 5, true);
-
+            UpDownEnemies.Add(new UpDownEnemy(7, 15, true));
+            UpDownEnemies.Add(new UpDownEnemy(17, 2, true));
+            UpDownEnemies.Add(new UpDownEnemy(3, 9, true));
+            UpDownEnemies.Add(new UpDownEnemy(8, 5, true));
+            UpDownEnemies.Add(new UpDownEnemy(14, 7, true));
+            LeftRightEnemies.Add(new LeftRightEnemy(10, 5, true));
+            LeftRightEnemies.Add(new LeftRightEnemy(12, 15, true));
+            LeftRightEnemies.Add(new LeftRightEnemy(13, 12, true));
+            LeftRightEnemies.Add(new LeftRightEnemy(14, 13, true));
+            LeftRightEnemies.Add(new LeftRightEnemy(18, 17, true));
+            RandomEnemies.Add(new RandomEnemy(4, 4));
+            RandomEnemies.Add(new RandomEnemy(5, 5));
+            RandomEnemies.Add(new RandomEnemy(4, 7));
+            RandomEnemies.Add(new RandomEnemy(4, 9));
+            RandomEnemies.Add(new RandomEnemy(4, 13));
 
             while (true)
             {
-                for (int i = 0; i < Enemies.Count; i++) 
+                for (int i = 0; i < UpDownEnemies.Count; i++)
                 {
-                    Enemies[i].Move();
-                    Enemies[i].EnemyCollision();
+                    UpDownEnemies[i].Move();
+                    UpDownEnemies[i].EnemyCollision();
+                    LeftRightEnemies[i].Move();
+                    LeftRightEnemies[i].EnemyCollision();
+                    RandomEnemies[i].Move();
+                    RandomEnemies[i].EnemyCollision();
 
-                    Enemies[i].Delete();
-                    Enemies[i].DrawToGameMap();
+                    UpDownEnemies[i].Delete();
+                    UpDownEnemies[i].DrawToGameMap();
+                    LeftRightEnemies[i].Delete();
+                    LeftRightEnemies[i].DrawToGameMap();
+                    RandomEnemies[i].Delete();
+                    RandomEnemies[i].DrawToGameMap();
                 }
                 lock (Baton)
                 {
                     Buffer.GameMapToBuffer();
                     Buffer.DrawGameMap();
                 }
-                Thread.Sleep(250);
+                Thread.Sleep(200);
             }
         }
+
         //Main program
         static void Main(string[] args)
         {
@@ -313,9 +486,7 @@ namespace Maze_Game
 
             Thread EnemyThread = new Thread(EnemiesMovement);
             EnemyThread.Start();
-
-
-
+            
             //Game Loop
             while (true)
             {
@@ -333,7 +504,6 @@ namespace Maze_Game
                     Buffer.GameMapToBuffer();
                     Buffer.DrawGameMap();
                 }
-
             }
         }
     }
