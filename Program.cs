@@ -49,7 +49,7 @@ namespace Maze_Game
         public char display = '$';
 
         //Variables to control where the player starts
-        private static int startingx = 1;
+        private static int startingx = 37;
         private static int startingy = 18;
 
         //Variables that hold the player's current position
@@ -133,6 +133,19 @@ namespace Maze_Game
             else if (Buffer.gameMap[y, x] == 'U')
             {
                 Environment.Exit(0);
+            }
+            else if (Buffer.gameMap[y, x] == 'L')
+            {
+                Environment.Exit(0);
+            }
+            else if (Buffer.gameMap[y, x] == 'R')
+            {
+                Environment.Exit(0);
+            }
+            else if (Buffer.gameMap[y, x] == 'C')
+            {
+                x = previousx;
+                y = previousy;
             }
         }
     }
@@ -340,6 +353,21 @@ namespace Maze_Game
             {
                 Environment.Exit(0);
             }
+            else if (Buffer.gameMap[y, x] == 'R')
+            { 
+                x = previousx;
+                y = previousy;
+            }
+            else if (Buffer.gameMap[y, x] == 'L')
+            {
+                x = previousx;
+                y = previousy;
+            }
+            else if (Buffer.gameMap[y, x] == 'U')
+            {
+                x = previousx;
+                y = previousy;
+            }
         }
 
         public RandomEnemy(int startingx1, int startingy1)
@@ -352,36 +380,17 @@ namespace Maze_Game
         }
     }
 
-    //Class for the random enemy
-    class CannonEnemy : Enemy
+    class Bullet : Enemy
     {
-        //Method to make the random enemy move
+        bool bulletAlive = true;
+        //Method to make the up down enemy go up or down
         public void Move()
         {
-            switch (1)
+            if (bulletAlive == true)
             {
-                case 1:
-                    previousx = x;
-                    previousy = y;
-                    x--;
-                    break;
-                case 2:
-                    previousx = x;
-                    previousy = y;
-                    x++;
-                    break;
-                case 3:
-                    previousx = x;
-                    previousy = y;
-                    y--;
-                    break;
-                case 4:
-                    previousx = x;
-                    previousy = y;
-                    y++;
-                    break;
-                default:
-                    break;
+                previousx = x;
+                previousy = y;
+                y++;
             }
         }
 
@@ -389,14 +398,43 @@ namespace Maze_Game
         {
             if (Buffer.gameMap[y, x] == '#')
             {
-                x = previousx;
-                y = previousy;
-
+                Buffer.gameMap[previousy, previousx] = ' ';
+                x = 0;
+                y = 0;
+                previousx = 0;
+                previousy = 0;
+                display = '#';
             }
             else if (Buffer.gameMap[y, x] == '$')
             {
-                Environment.Exit(0);
+                Console.WriteLine("YOU WERE HIT");
             }
+        }
+
+        public Bullet(int startingx1, int startingy1)
+        {
+            display = '•';
+            x = startingx1;
+            y = startingy1;
+            previousx = startingx1;
+            previousy = startingy1;
+        }
+    }
+
+    //Class for the random enemy
+    class CannonEnemy : Enemy
+    {
+        public List<Bullet> Bullets = new List<Bullet>();
+        public int bulletTimer = 0;
+        public int bulletTimerMax = 3;
+        public int bulletCount = 0;
+
+
+        //Method to make the cannon shoot
+        public void Shoot()
+        {
+            Bullets.Add(new Bullet(x, y));
+            bulletCount++;
         }
 
         public CannonEnemy(int startingx1, int startingy1)
@@ -408,11 +446,24 @@ namespace Maze_Game
             previousy = startingy1;
         }
     }
-
+    
     //Main class
     class Program
     {
         static object Baton = new object();
+
+        static void Instructions()
+        {
+            string space = "                                           ";
+            string instructions = "Welcome to the Maze Game\n" + space +
+                "Use the arrow keys to control your player\n" + space +
+                "Reach the goal post to win\n" + space +
+                "If you get hit by the enemies you will die\n";
+            Console.SetCursorPosition(43, 0);
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.Write(instructions);
+            Console.ResetColor();
+        }
 
         static void SetUpConsoleWindow()
         {
@@ -420,6 +471,7 @@ namespace Maze_Game
             Console.Title = "Maze Game";
             Console.CursorVisible = false;
             Console.SetWindowSize(50, 22);
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
         }
 
         static void EnemiesMovement()
@@ -427,6 +479,7 @@ namespace Maze_Game
             List<UpDownEnemy> UpDownEnemies = new List<UpDownEnemy>();
             List<LeftRightEnemy> LeftRightEnemies = new List<LeftRightEnemy>();
             List<RandomEnemy> RandomEnemies = new List<RandomEnemy>();
+            List<CannonEnemy> CannonEnemies = new List<CannonEnemy>();
 
             UpDownEnemies.Add(new UpDownEnemy(7, 15, true));
             UpDownEnemies.Add(new UpDownEnemy(17, 2, true));
@@ -443,7 +496,18 @@ namespace Maze_Game
             RandomEnemies.Add(new RandomEnemy(4, 7));
             RandomEnemies.Add(new RandomEnemy(4, 9));
             RandomEnemies.Add(new RandomEnemy(4, 13));
+            CannonEnemies.Add(new CannonEnemy(40, 1));
+            CannonEnemies.Add(new CannonEnemy(41, 2));
+            CannonEnemies.Add(new CannonEnemy(39, 3));
+            CannonEnemies.Add(new CannonEnemy(38, 4));
+            CannonEnemies.Add(new CannonEnemy(37, 5));
 
+            CannonEnemies[0].DrawToGameMap();
+            CannonEnemies[1].DrawToGameMap();
+            CannonEnemies[2].DrawToGameMap();
+            CannonEnemies[3].DrawToGameMap();
+            CannonEnemies[4].DrawToGameMap();
+            
             while (true)
             {
                 for (int i = 0; i < UpDownEnemies.Count; i++)
@@ -454,6 +518,27 @@ namespace Maze_Game
                     LeftRightEnemies[i].EnemyCollision();
                     RandomEnemies[i].Move();
                     RandomEnemies[i].EnemyCollision();
+                    
+                    if (CannonEnemies[i].bulletTimer == CannonEnemies[i].bulletTimerMax)
+                    { 
+                        CannonEnemies[i].Shoot();
+                        CannonEnemies[i].bulletTimer = 0;
+                    }
+                    else
+                    {
+                        CannonEnemies[i].bulletTimer++;
+                    }
+
+                    for (int j = 0; j < CannonEnemies[i].bulletCount; j++)
+                    {
+                        CannonEnemies[i].Bullets[j].Move();
+                    }
+
+                    for (int j = 0; j < CannonEnemies[i].bulletCount; j++)
+                    {
+                        CannonEnemies[i].Bullets[j].EnemyCollision();
+                    }
+
 
                     UpDownEnemies[i].Delete();
                     UpDownEnemies[i].DrawToGameMap();
@@ -461,6 +546,19 @@ namespace Maze_Game
                     LeftRightEnemies[i].DrawToGameMap();
                     RandomEnemies[i].Delete();
                     RandomEnemies[i].DrawToGameMap();
+
+                    for (int j = 0; j < CannonEnemies[i].bulletCount; j++)
+                    {
+                        CannonEnemies[i].Bullets[j].Delete();
+                    }
+
+                    for (int j = 0; j < CannonEnemies[i].bulletCount; j++)
+                    {
+                        CannonEnemies[i].Bullets[j].DrawToGameMap();
+                    }
+
+                    CannonEnemies[i].DrawToGameMap();
+                    
                 }
                 lock (Baton)
                 {
@@ -475,6 +573,7 @@ namespace Maze_Game
         static void Main(string[] args)
         {
             SetUpConsoleWindow();
+            Instructions();
 
             ConsoleKey input;
             Player Player = new Player();
